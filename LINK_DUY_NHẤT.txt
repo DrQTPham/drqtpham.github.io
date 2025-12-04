@@ -1,0 +1,64 @@
+═══════════════════════════════════════════════════════════
+    🚀 EQD2 & BED CALCULATOR - LINK DUY NHẤT
+═══════════════════════════════════════════════════════════
+
+📍 CHỈ CẦN NHỚ MỘT LINK NÀY:
+
+    http://localhost:8080/GO.html
+
+    HOẶC
+
+    http://localhost:8080/START.html
+
+    HOẶC
+
+    http://localhost:8080/index.html
+
+═══════════════════════════════════════════════════════════
+
+⚡ KHỞI ĐỘNG (1 lần duy nhất):
+
+    1. Mở Terminal
+    2. Chạy lệnh:
+       
+       cd frontend
+       python3 -m http.server 8080
+
+    3. Mở trình duyệt và vào:
+       http://localhost:8080/GO.html
+
+═══════════════════════════════════════════════════════════
+
+🎯 TẤT CẢ TÍNH NĂNG TRONG MỘT TRANG:
+
+    ✅ Tính BED & EQD2
+    ✅ Tính ngược từ EQD2 mục tiêu
+    ✅ Bù liều khi gián đoạn (Gap Compensation)
+    ✅ Tra cứu Organ Dose (38 cơ quan)
+    ✅ Tính Multi-Constraint (TẤT CẢ constraints)
+    ✅ SBRT 1fx, 3fx, 5fx data
+    ✅ Lịch sử tính toán
+
+═══════════════════════════════════════════════════════════
+
+💡 GỢI Ý:
+
+    • Bookmark link: http://localhost:8080/GO.html
+    • Mỗi lần dùng chỉ cần mở bookmark
+    • Không cần nhớ nhiều link khác nhau
+
+═══════════════════════════════════════════════════════════
+
+📚 TÀI LIỆU (nếu cần):
+
+    • QUICK_START.md - Hướng dẫn nhanh 5 phút
+    • HUONG_DAN_SU_DUNG.md - Hướng dẫn đầy đủ
+    • MULTI_CONSTRAINT_FEATURE.md - Tính năng mới
+
+═══════════════════════════════════════════════════════════
+
+✨ Version 2.1 - Multi-Constraint Edition
+👨‍⚕️ Phát triển bởi Dr. Q.T. Phạm
+📅 November 30, 2025
+
+═══════════════════════════════════════════════════════════

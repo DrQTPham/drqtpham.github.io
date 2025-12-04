@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Organ Dose Limit Lookup</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; }
+        h2 { color: #333; margin-top: 0; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-conventional { background: #e8f5e8; color: #2d5a2d; }
+        .badge-srs { background: #ffe0e0; color: #8b0000; }
+        .badge-sbrt3 { background: #fff3cd; color: #856404; }
+        .badge-sbrt5 { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test - Organ Dose Limit Lookup</h1>
+
+    <!-- Test Database -->
+    <div class="card">
+        <h2>1. Test Database</h2>
+        <button onclick="testDatabase()">Test Database Loading</button>
+        <div id="dbResults" class="results"></div>
+    </div>
+
+    <!-- Test BED Calculator -->
+    <div class="card">
+        <h2>2. Test BED Calculator</h2>
+        <div class="form-group">
+            <label>Total Dose (Gy):</label>
+            <input type="number" id="testTotalDose" value="45" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Dose per Fraction (Gy):</label>
+            <input type="number" id="testDosePerFx" value="2" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Alpha/Beta:</label>
+            <input type="number" id="testAlphaBeta" value="2.0" step="0.1">
+        </div>
+        <button onclick="testBEDCalculator()">Calculate BED</button>
+        <div id="bedResults" class="results"></div>
+    </div>
+
+    <!-- Test Validation -->
+    <div class="card">
+        <h2>3. Test Validation Engine</h2>
+        <div class="form-group">
+            <label>Test Input:</label>
+            <input type="text" id="testValidation" placeholder="Try: 3, -5, abc, 25">
+        </div>
+        <button onclick="testValidation()">Validate Input</button>
+        <div id="validationResults" class="results"></div>
+    </div>
+
+    <!-- Test Organ Lookup -->
+    <div class="card">
+        <h2>4. Test Organ Lookup</h2>
+        <div class="form-group">
+            <label>Select Organ:</label>
+            <select id="testOrganSelect">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+        <button onclick="testOrganLookup()">Lookup Organ</button>
+        <div id="organResults" class="results"></div>
+    </div>
+
+    <!-- Test Complete Workflow -->
+    <div class="card">
+        <h2>5. Test Complete Workflow</h2>
+        <div class="form-group">
+            <label>Select Organ:</label>
+            <select id="workflowOrgan">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Custom Dose per Fraction (Gy):</label>
+            <input type="number" id="workflowDose" value="3.0" step="0.1">
+        </div>
+        <button onclick="testCompleteWorkflow()">Calculate Custom Dose</button>
+        <div id="workflowResults" class="results"></div>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="js/organ-dose-database.js"></script>
+    <script src="js/bed-calculator.js"></script>
+    <script src="js/validation-engine.js"></script>
+
+    <script>
+        // Initialize organ selectors
+        function initializeSelectors() {
+            const organs = getOrgansByRegion();
+            const regionNames = {
+                head_neck: '👄 Head & Neck',
+                cns: '🧠 CNS',
+                thorax: '❤️ Thorax',
+                abdomen: '🫁 Abdomen',
+                pelvis: '🔻 Pelvis',
+                bone: '🦴 Bone',
+                genitourinary: '💧 Genitourinary'
+            };
+
+            ['testOrganSelect', 'workflowOrgan'].forEach(selectId => {
+                const select = document.getElementById(selectId);
+                Object.keys(organs).forEach(region => {
+                    if (organs[region].length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = regionNames[region] || region;
+                        organs[region].forEach(organ => {
+                            const option = document.createElement('option');
+                            option.value = organ.id;
+                            option.textContent = `${organ.nameVi} (${organ.nameEn})`;
+                            optgroup.appendChild(option);
+                        });
+                        select.appendChild(optgroup);
+                    }
+                });
+            });
+        }
+
+        // Test 1: Database
+        function testDatabase() {
+            const results = document.getElementById('dbResults');
+            const organCount = getOrganCount();
+            const refCount = getAllReferences().length;
+            const organs = getOrgansByRegion();
+
+            let html = `<div class="alert alert-success">
+                <strong>✅ Database loaded successfully!</strong><br>
+                Total organs: ${organCount}<br>
+                Total references: ${refCount}<br><br>
+                <strong>Organs by region:</strong><br>`;
+
+            Object.keys(organs).forEach(region => {
+                html += `${region}: ${organs[region].length} organs<br>`;
+            });
+
+            html += '</div>';
+            results.innerHTML = html;
+        }
+
+        // Test 2: BED Calculator
+        function testBEDCalculator() {
+            const totalDose = parseFloat(document.getElementById('testTotalDose').value);
+            const dosePerFx = parseFloat(document.getElementById('testDosePerFx').value);
+            const alphaBeta = parseFloat(document.getElementById('testAlphaBeta').value);
+            const results = document.getElementById('bedResults');
+
+            try {
+                const bed = bedCalculator.calculateBED(totalDose, dosePerFx, alphaBeta);
+                const fractions = bedCalculator.calculateFractions(totalDose, dosePerFx);
+
+                results.innerHTML = `<div class="alert alert-success">
+                    <strong>✅ BED Calculation:</strong><br>
+                    Total Dose: ${totalDose} Gy<br>
+                    Dose per Fraction: ${dosePerFx} Gy<br>
+                    Number of Fractions: ${fractions}<br>
+                    Alpha/Beta: ${alphaBeta}<br>
+                    <strong>BED: ${bed.toFixed(2)} Gy</strong>
+                </div>`;
+            } catch (error) {
+                results.innerHTML = `<div class="alert alert-danger">
+                    <strong>❌ Error:</strong> ${error.message}
+                </div>`;
+            }
+        }
+
+        // Test 3: Validation
+        function testValidation() {
+            const input = document.getElementById('testValidation').value;
+            const results = document.getElementById('validationResults');
+
+            const validation = validationEngine.validateDosePerFraction(input);
+
+            if (validation.isValid) {
+                let html = `<div class="alert alert-success">
+                    <strong>✅ Valid input!</strong><br>
+                    Value: ${input}`;
+                if (validation.warnings.length > 0) {
+                    html += `<br><br><strong>Warnings:</strong><br>`;
+                    validation.warnings.forEach(w => html += `⚠️ ${w}<br>`);
+                }
+                html += '</div>';
+                results.innerHTML = html;
+            } else {
+                results.innerHTML = `<div class="alert alert-danger">
+                    <strong>❌ Invalid input!</strong><br>
+                    ${validation.errorMessage}
+                </div>`;
+            }
+        }
+
+        // Test 4: Organ Lookup
+        function testOrganLookup() {
+            const organId = document.getElementById('testOrganSelect').value;
+            const results = document.getElementById('organResults');
+
+            if (!organId) {
+                results.innerHTML = `<div class="alert alert-warning">Please select an organ</div>`;
+                return;
+            }
+
+            const organ = getOrgan(organId);
+            if (!organ) {
+                results.innerHTML = `<div class="alert alert-danger">Organ not found</div>`;
+                return;
+            }
+
+            let html = `<div class="alert alert-success">
+                <h3>${organ.nameVi} (${organ.nameEn})</h3>
+                <p><strong>Region:</strong> ${organ.region}</p>
+                <p><strong>Alpha/Beta:</strong> ${organ.alphaBeta}</p>
+                <p><strong>Endpoint:</strong> ${organ.endpoint}</p>
+            </div>`;
+
+            // Conventional
+            if (organ.conventional.length > 0) {
+                html += `<h4><span class="badge badge-conventional">Conventional (2 Gy/fx)</span></h4>`;
+                html += '<table><tr><th>Type</th><th>Volume</th><th>Dose Limit</th><th>Source</th></tr>';
+                organ.conventional.forEach(c => {
+                    const vol = c.volume ? `${c.volume} ${c.volumeUnit}` : 'None';
+                    html += `<tr><td>${c.type}</td><td>${vol}</td><td>${c.doseLimit} Gy</td><td>${c.sourceNumber}</td></tr>`;
+                });
+                html += '</table>';
+            }
+
+            // SBRT
+            ['srs_1fx', 'sbrt_3fx', 'sbrt_5fx'].forEach(scheme => {
+                if (organ[scheme].length > 0) {
+                    const label = scheme === 'srs_1fx' ? '1-fx SRS' : scheme === 'sbrt_3fx' ? '3-fx SBRT' : '5-fx SBRT';
+                    const badgeClass = scheme === 'srs_1fx' ? 'badge-srs' : scheme === 'sbrt_3fx' ? 'badge-sbrt3' : 'badge-sbrt5';
+                    html += `<h4><span class="badge ${badgeClass}">${label}</span></h4>`;
+                    html += '<table><tr><th>Type</th><th>Volume</th><th>Dose Limit</th><th>Source</th></tr>';
+                    organ[scheme].forEach(c => {
+                        const vol = c.volume ? `${c.volume} ${c.volumeUnit}` : 'None';
+                        html += `<tr><td>${c.type}</td><td>${vol}</td><td>${c.doseLimit} Gy</td><td>${c.sourceNumber}</td></tr>`;
+                    });
+                    html += '</table>';
+                }
+            });
+
+            results.innerHTML = html;
+        }
+
+        // Test 5: Complete Workflow
+        function testCompleteWorkflow() {
+            const organId = document.getElementById('workflowOrgan').value;
+            const customDose = parseFloat(document.getElementById('workflowDose').value);
+            const results = document.getElementById('workflowResults');
+
+            // Validate
+            const validation = validationEngine.validateCalculationInputs({
+                organId: organId,
+                dosePerFraction: customDose
+            });
+
+            if (!validation.isValid) {
+                results.innerHTML = `<div class="alert alert-danger">
+                    <strong>❌ Validation Error:</strong><br>
+                    ${validation.errorMessage}
+                </div>`;
+                return;
+            }
+
+            // Get organ
+            const organ = getOrgan(organId);
+            const alphaBeta = organ.alphaBeta;
+
+            // Get reference dose (first conventional constraint)
+            const refConstraint = organ.conventional[0];
+            if (!refConstraint) {
+                results.innerHTML = `<div class="alert alert-warning">
+                    No conventional dose limit available for this organ
+                </div>`;
+                return;
+            }
+
+            const referenceDose = refConstraint.doseLimit;
+
+            // Calculate
+            try {
+                const calc = bedCalculator.calculateDoseConversion({
+                    referenceDose: referenceDose,
+                    referenceFraction: 2.0,
+                    customFraction: customDose,
+                    alphaBeta: alphaBeta
+                });
+
+                const alertClass = calc.warningLevel === 'danger' ? 'alert-danger' : 
+                                   calc.warningLevel === 'caution' ? 'alert-warning' : 'alert-success';
+
+                let html = `<div class="alert ${alertClass}">
+                    <h3>${organ.nameVi} (${organ.nameEn})</h3>
+                    <p><strong>Alpha/Beta:</strong> ${alphaBeta} | <strong>Endpoint:</strong> ${organ.endpoint}</p>
+                    
+                    <h4>📋 Reference (2 Gy/fx):</h4>
+                    <p>Total Dose: <strong>${calc.referenceDose} Gy</strong> (${calc.referenceFractions} fractions)</p>
+                    <p>BED: <strong>${calc.referenceBED.toFixed(2)} Gy</strong></p>
+                    
+                    <h4>🧮 Custom (${customDose} Gy/fx):</h4>
+                    <p>Theoretical Dose: ${calc.theoreticalDose.toFixed(2)} Gy</p>
+                    <p>Practical Dose: <strong>${calc.practicalDose.toFixed(1)} Gy</strong> (${calc.practicalFractions} fractions)</p>
+                    <p>BED: <strong>${calc.customBED.toFixed(2)} Gy</strong></p>
+                    
+                    <h4>⚖️ Safety Assessment:</h4>
+                    <p>Safety Margin: <strong>${calc.safetyMargin.toFixed(1)}%</strong></p>
+                    <p>Status: ${calc.isWithinLimits ? '✅ Within limits' : '❌ EXCEEDS LIMIT'}</p>
+                </div>`;
+
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<div class="alert alert-danger">
+                    <strong>❌ Calculation Error:</strong><br>
+                    ${error.message}
+                </div>`;
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initializeSelectors();
+            console.log('Test page initialized');
+        };
+    </script>
+</body>
+</html>

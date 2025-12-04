@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Lens - Force Reload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .success {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        .error {
+            background: #f8d7da;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        .highlight {
+            background: #fff3cd !important;
+            font-weight: bold;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Test Lens Constraints - Force Reload</h1>
+        
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <strong>📌 Trang này force reload database với timestamp để bypass cache</strong>
+        </div>
+
+        <button class="btn" onclick="testLens()">🔄 Test Lại</button>
+        <button class="btn" onclick="location.href='index.html'">← Về trang chính</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Force reload with timestamp
+        const timestamp = new Date().getTime();
+        const script = document.createElement('script');
+        script.src = `js/organ-dose-database.js?v=${timestamp}`;
+        script.onload = function() {
+            console.log('Database loaded with timestamp:', timestamp);
+            testLens();
+        };
+        script.onerror = function() {
+            document.getElementById('results').innerHTML = `
+                <div class="error">
+                    <h3>❌ Không thể load database!</h3>
+                    <p>Vui lòng kiểm tra console để xem lỗi chi tiết.</p>
+                </div>
+            `;
+        };
+        document.head.appendChild(script);
+
+        function testLens() {
+            const resultsDiv = document.getElementById('results');
+            
+            if (typeof getOrgan !== 'function') {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Database chưa load!</h3>
+                        <p>Đang chờ load... Vui lòng đợi 2 giây và nhấn "Test Lại"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const lens = getOrgan('lens');
+            
+            if (!lens) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Không tìm thấy Lens trong database!</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            const count = lens.conventional ? lens.conventional.length : 0;
+            
+            let html = '';
+            
+            if (count === 2) {
+                html += `
+                    <div class="success">
+                        <h2>✅ THÀNH CÔNG!</h2>
+                        <p>Database có <strong>${count} constraints</strong> cho Lens</p>
+                    </div>
+                `;
+            } else if (count === 1) {
+                html += `
+                    <div class="error">
+                        <h2>❌ VẪN BỊ CACHE!</h2>
+                        <p>Chỉ có <strong>${count} constraint</strong> (cần 2)</p>
+                        <p><strong>Giải pháp:</strong></p>
+                        <ol>
+                            <li>Đóng HOÀN TOÀN trình duyệt (Quit/Exit)</li>
+                            <li>Mở lại và vào trang này</li>
+                            <li>Hoặc thử trình duyệt khác (Chrome, Firefox, Safari)</li>
+                        </ol>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="error">
+                        <h2>⚠️ Số lượng constraints: ${count}</h2>
+                    </div>
+                `;
+            }
+
+            // Show details
+            if (lens.conventional && lens.conventional.length > 0) {
+                html += `
+                    <h3>📋 Chi tiết Constraints:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Type</th>
+                                <th>Dose Limit</th>
+                                <th>Source</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                lens.conventional.forEach((c, i) => {
+                    const isNew = c.doseLimit === 10;
+                    const rowClass = isNew ? 'class="highlight"' : '';
+                    const note = c.note || '-';
+                    
+                    html += `
+                        <tr ${rowClass}>
+                            <td>${i + 1}</td>
+                            <td>${c.type}</td>
+                            <td><strong>${c.doseLimit} Gy</strong></td>
+                            <td>Ref #${c.sourceNumber}</td>
+                            <td>${note}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Show raw JSON
+            html += `
+                <h3>🔍 Raw JSON:</h3>
+                <pre>${JSON.stringify(lens, null, 2)}</pre>
+            `;
+
+            // Check reference 41
+            if (typeof getReference === 'function') {
+                const ref41 = getReference(41);
+                if (ref41) {
+                    html += `
+                        <div class="success" style="margin-top: 20px;">
+                            <strong>✅ Reference #41 tồn tại:</strong><br>
+                            ${ref41.authors}<br>
+                            ${ref41.title}
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="error" style="margin-top: 20px;">
+                            <strong>❌ Reference #41 KHÔNG tồn tại!</strong>
+                        </div>
+                    `;
+                }
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

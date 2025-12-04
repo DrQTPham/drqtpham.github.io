@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lý Thuyết Tính Bù Liều Khi Gián Đoạn - Gap Compensation Theory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 5px solid #764ba2;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            border-radius: 5px;
+        }
+
+        .example {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .example h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .note {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #721c24;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: #764ba2;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .back-link a {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .back-link a:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .back-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 LÝ THUYẾT TÍNH BÙ LIỀU KHI GIÁN ĐOẠN</h1>
+        <h2>Gap Compensation Theory - EQD2 & BED Calculator</h2>
+
+        <h2>🎯 1. TỔNG QUAN</h2>
+        <p>Khi điều trị xạ trị bị gián đoạn (gap), các tế bào u có thể phục hồi và tăng sinh trong thời gian nghỉ. Để đảm bảo hiệu quả điều trị, cần phải <strong>tăng liều bù</strong> (compensation dose) cho các phân đoạn còn lại.</p>
+
+        <h2>🧬 2. CƠ SỞ SINH HỌC</h2>
+        
+        <h3>2.1. Mô hình tuyến tính-bậc hai (Linear-Quadratic Model)</h3>
+        <p>Hiệu ứng sinh học của xạ trị được mô tả bởi công thức LQ:</p>
+        
+        <div class="formula">
+            BED = n × d × (1 + d/(α/β))
+        </div>
+        
+        <p>Trong đó:</p>
+        <ul>
+            <li><strong>n</strong>: số phân đoạn</li>
+            <li><strong>d</strong>: liều mỗi phân đoạn (Gy)</li>
+            <li><strong>α/β</strong>: tỷ lệ đặc trưng của mô (Gy)</li>
+        </ul>
+
+        <h3>2.2. Thời gian nhân đôi tế bào u (Tumor Doubling Time - Tpot)</h3>
+        <p>Trong thời gian gián đoạn, tế bào u có thể tăng sinh. Tốc độ tăng sinh được đặc trưng bởi <strong>Tpot</strong> (thường 3-7 ngày cho hầu hết các khối u).</p>
+
+        <div class="note">
+            <strong>📌 Lưu ý:</strong> Giá trị Tpot mặc định trong phần mềm là <strong>3 ngày</strong> (giá trị bảo thủ để đảm bảo an toàn).
+        </div>
+
+        <h2>⚡ 3. CÔNG THỨC TÍNH BÙ LIỀU</h2>
+
+        <h3>3.1. Mất mát BED do gián đoạn</h3>
+        <div class="formula">
+            BED_loss = (gap_days / Tpot) × K
+        </div>
+        
+        <p>Trong đó:</p>
+        <ul>
+            <li><strong>gap_days</strong>: số ngày gián đoạn</li>
+            <li><strong>Tpot</strong>: thời gian nhân đôi tế bào u (ngày)</li>
+            <li><strong>K</strong>: hệ số mất mát (thường 0.6-0.7 Gy/ngày)</li>
+        </ul>
+
+        <h3>3.2. Liều bù cần thiết</h3>
+        <p>Để bù lại BED bị mất, ta cần tăng liều cho các phân đoạn còn lại:</p>
+        
+        <div class="formula">
+            d_new = d_old + Δd
+        </div>
+        
+        <p>Với <strong>Δd</strong> được tính từ phương trình BED:</p>
+        
+        <div class="formula">
+            BED_loss = n_remaining × Δd × (1 + (d_old + Δd)/(α/β))
+        </div>
+
+        <h2>📊 4. VÍ DỤ TÍNH TOÁN</h2>
+
+        <div class="example">
+            <h4>🔬 Ví dụ: Điều trị ung thư vú</h4>
+            
+            <p><strong>Phác đồ ban đầu:</strong></p>
+            <ul>
+                <li>Tổng liều: 50 Gy</li>
+                <li>Số phân đoạn: 25 fx</li>
+                <li>Liều mỗi phân đoạn: 2 Gy/fx</li>
+                <li>α/β = 4 Gy (mô u vú)</li>
+            </ul>
+
+            <p><strong>Tình huống:</strong></p>
+            <ul>
+                <li>Đã điều trị: 15 phân đoạn (30 Gy)</li>
+                <li>Gián đoạn: 7 ngày</li>
+                <li>Còn lại: 10 phân đoạn</li>
+            </ul>
+
+            <p><strong>Tính toán:</strong></p>
+            <ol>
+                <li>BED ban đầu còn lại = 10 × 2 × (1 + 2/4) = 30 Gy</li>
+                <li>BED mất do gap = (7/3) × 0.6 ≈ 1.4 Gy</li>
+                <li>BED cần đạt = 30 + 1.4 = 31.4 Gy</li>
+                <li>Liều mới mỗi phân đoạn ≈ 2.07 Gy/fx</li>
+            </ol>
+
+            <p><strong>Kết luận:</strong> Cần tăng liều từ 2.0 lên 2.07 Gy/fx cho 10 phân đoạn còn lại.</p>
+        </div>
+
+        <h2>⚠️ 5. LƯU Ý LÂM SÀNG</h2>
+
+        <div class="warning">
+            <h4>🚨 Các điểm quan trọng:</h4>
+            <ul>
+                <li><strong>Giới hạn liều:</strong> Liều mỗi phân đoạn không nên vượt quá 3.0 Gy để tránh độc tính muộn</li>
+                <li><strong>Mô lành:</strong> Cần kiểm tra lại liều cho các cơ quan nguy cơ</li>
+                <li><strong>Tpot:</strong> Giá trị 3 ngày là bảo thủ, có thể điều chỉnh theo từng loại u</li>
+                <li><strong>Gap ngắn:</strong> Nếu gap < 3 ngày, có thể không cần bù liều</li>
+                <li><strong>Gap dài:</strong> Nếu gap > 14 ngày, cần cân nhắc lại toàn bộ phác đồ</li>
+            </ul>
+        </div>
+
+        <h2>📖 6. TÀI LIỆU THAM KHẢO</h2>
+        <ol>
+            <li>Fowler JF. The linear-quadratic formula and progress in fractionated radiotherapy. Br J Radiol. 1989;62(740):679-694.</li>
+            <li>Thames HD, Hendry JH. Fractionation in Radiotherapy. Taylor & Francis; 1987.</li>
+            <li>Withers HR, Taylor JM, Maciejewski B. Treatment volume and tissue tolerance. Int J Radiat Oncol Biol Phys. 1988;14(4):751-759.</li>
+            <li>Dale RG. The application of the linear-quadratic dose-effect equation to fractionated and protracted radiotherapy. Br J Radiol. 1985;58(690):515-528.</li>
+        </ol>
+
+        <h2>🔧 7. SỬ DỤNG TRONG PHẦN MÊM</h2>
+        <p>Phần mềm EQD2 & BED Calculator tự động tính toán liều bù dựa trên:</p>
+        <ul>
+            <li>Thông tin phác đồ ban đầu</li>
+            <li>Số phân đoạn đã thực hiện</li>
+            <li>Số ngày gián đoạn</li>
+            <li>Giá trị α/β của mô</li>
+            <li>Tpot (mặc định 3 ngày, có thể tùy chỉnh)</li>
+        </ul>
+
+        <div class="note">
+            <strong>💡 Mẹo:</strong> Luôn kiểm tra kết quả tính toán với bác sĩ điều trị trước khi áp dụng lâm sàng!
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← Quay lại trang chính</a>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #eee;">
+        <p style="text-align: center; color: #888; font-size: 0.9em;">
+            © 2025 EQD2 & BED Calculator v2.2<br>
+            <strong>Dr. Q.T. Phạm</strong> 📧 qtphamhus@gmail.com
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Organ Limit Calculator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Test Organ Limit Calculator</h1>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>⚠️ Tính liều giới hạn cơ quan lành</h2>
+                
+                <form id="organLimitForm">
+                    <div class="form-group">
+                        <label for="organName">Tên cơ quan:</label>
+                        <select id="organName">
+                            <option value="">-- Chọn cơ quan --</option>
+                            <option value="spinal_cord">Tủy sống (Spinal Cord)</option>
+                            <option value="brainstem">Thân não (Brainstem)</option>
+                            <option value="optic_nerve">Dây thần kinh thị giác (Optic Nerve)</option>
+                            <option value="lung">Phổi (Lung)</option>
+                            <option value="heart">Tim (Heart)</option>
+                            <option value="kidney">Thận (Kidney)</option>
+                            <option value="liver">Gan (Liver)</option>
+                            <option value="rectum">Trực tràng (Rectum)</option>
+                            <option value="bladder">Bàng quang (Bladder)</option>
+                            <option value="custom">Tùy chỉnh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="standardDoseLimit">Liều giới hạn chuẩn (2 Gy/fx) - Gy:</label>
+                        <input type="number" id="standardDoseLimit" step="0.1" min="0" placeholder="45.0" required>
+                        <small>Liều tối đa cho cơ quan với phân liều chuẩn 2 Gy</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organAlphaBeta">α/β của cơ quan - Gy:</label>
+                        <input type="number" id="organAlphaBeta" step="0.1" min="0.1" placeholder="2.0" required>
+                        <small>Thường: Tủy sống 2 Gy, Thần kinh 2-3 Gy, Phổi/Tim 3 Gy</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newDosePerFraction">Liều/phân liều mới muốn dùng - Gy:</label>
+                        <input type="number" id="newDosePerFraction" step="0.1" min="0.1" placeholder="3.0" required>
+                        <small>Liều/phân liều trong phác đồ mới (VD: 3 Gy cho hypofractionation)</small>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="calculateOrganLimit()">
+                        🧮 Tính liều giới hạn mới
+                    </button>
+                </form>
+
+                <div id="organLimitResults" style="display: none; margin-top: 20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        console.log('Test page loaded');
+        console.log('calculateOrganLimit function exists:', typeof calculateOrganLimit !== 'undefined');
+    </script>
+</body>
+</html>

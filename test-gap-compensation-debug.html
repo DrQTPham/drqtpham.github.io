@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST - Gap Compensation Debug</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 TEST - Gap Compensation Debug</h1>
+            <p>Kiểm tra tính bù liều</p>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>⏸️ Tính bù liều khi gián đoạn xạ trị</h2>
+                
+                <form id="gapCompensationForm">
+                    <div class="form-group">
+                        <label for="tumorType">Loại u:</label>
+                        <select id="tumorType">
+                            <option value="">-- Chọn loại u --</option>
+                            <option value="hnscc">U đầu cổ (HNSCC) - 0.7 Gy/day</option>
+                            <option value="nsclc">U phổi NSCLC - 0.6 Gy/day</option>
+                            <option value="custom">Nhập thủ công</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repopulationRate">Tốc độ tái sinh (Gy/ngày):</label>
+                        <input type="number" id="repopulationRate" step="0.1" min="0" placeholder="0.6" value="0.7">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gapDays">Số ngày gián đoạn:</label>
+                        <input type="number" id="gapDays" min="1" placeholder="7" value="5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalTotalDose">Tổng liều ban đầu (Gy):</label>
+                        <input type="number" id="originalTotalDose" step="0.1" min="0" placeholder="70.0" value="70">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalFractions">Số phân liều ban đầu:</label>
+                        <input type="number" id="originalFractions" min="1" placeholder="35" value="35">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="completedFractions">Số phân liều đã hoàn thành:</label>
+                        <input type="number" id="completedFractions" min="0" placeholder="20" value="20">
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="calculateGapCompensation()">
+                        🧮 Tính liều bù
+                    </button>
+                </form>
+
+                <div id="gapCompensationResults" style="display: none; margin-top: 20px;"></div>
+            </section>
+
+            <!-- Debug Console -->
+            <section class="card">
+                <h2>🔍 Debug Console</h2>
+                <div id="debugConsole" style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; max-height: 400px; overflow-y: auto;">
+                    <p>Waiting for calculation...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Override console.log to show in debug console
+        const debugDiv = document.getElementById('debugConsole');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addDebugMessage(type, ...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const p = document.createElement('p');
+            p.style.margin = '5px 0';
+            p.style.color = type === 'error' ? '#f44' : '#333';
+            p.textContent = `[${type.toUpperCase()}] ${message}`;
+            debugDiv.appendChild(p);
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addDebugMessage('log', ...args);
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addDebugMessage('error', ...args);
+        };
+        
+        // Test on load
+        window.addEventListener('load', () => {
+            console.log('✅ Page loaded');
+            console.log('✅ calculateGapCompensation function:', typeof window.calculateGapCompensation);
+            console.log('✅ showAlert function:', typeof window.showAlert);
+            
+            // Check if elements exist
+            const elements = [
+                'tumorType',
+                'repopulationRate',
+                'gapDays',
+                'originalTotalDose',
+                'originalFractions',
+                'completedFractions',
+                'gapCompensationResults'
+            ];
+            
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                console.log(`Element #${id}:`, el ? '✅ Found' : '❌ Not found');
+            });
+        });
+        
+        // Override showAlert to show in debug
+        window.showAlert = function(message, type = 'info') {
+            console.log(`ALERT [${type}]: ${message}`);
+            alert(`${type.toUpperCase()}: ${message}`);
+        };
+    </script>
+</body>
+</html>

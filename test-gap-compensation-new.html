@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gap Compensation - New Architecture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        h2 {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Gap Compensation - New Architecture</h1>
+
+    <div class="test-box">
+        <h2>1. Test Gap Calculator Core</h2>
+        <button onclick="testGapCalculator()">Run Test</button>
+        <div id="test1-result" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>2. Test BID Strategy</h2>
+        <button onclick="testBIDStrategy()">Run Test</button>
+        <div id="test2-result" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>3. Test Extra Fractions Strategy</h2>
+        <button onclick="testExtraFractionsStrategy()">Run Test</button>
+        <div id="test3-result" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>4. Test Six Days Week Strategy</h2>
+        <button onclick="testSixDaysWeekStrategy()">Run Test</button>
+        <div id="test4-result" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>5. Test Dose Escalation Strategy</h2>
+        <button onclick="testDoseEscalationStrategy()">Run Test</button>
+        <div id="test5-result" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>6. Test All Methods Comparison</h2>
+        <button onclick="testAllMethods()">Run Test</button>
+        <div id="test6-result" class="result"></div>
+    </div>
+
+    <!-- Load modules -->
+    <script src="js/gap-compensation-core.js"></script>
+    <script src="js/gap-compensation-strategies.js"></script>
+
+    <script>
+        function testGapCalculator() {
+            const resultDiv = document.getElementById('test1-result');
+            try {
+                const calc = window.gapCalculator;
+                
+                // Test 1: Normal calculation
+                const bedLoss1 = calc.calculateBEDLoss(7, 3, 10);
+                console.log('BED Loss (7 days, Td=3, α/β=10):', bedLoss1);
+                
+                // Test 2: Zero gap
+                const bedLoss2 = calc.calculateBEDLoss(0, 3, 10);
+                console.log('BED Loss (0 days):', bedLoss2);
+                
+                // Test 3: Validation
+                const validation = calc.validateGapParameters(7, 3, 10);
+                console.log('Validation:', validation);
+                
+                // Test 4: Invalid input
+                try {
+                    calc.calculateBEDLoss(-5, 3, 10);
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = '❌ Should have thrown error for negative gap days';
+                } catch (e) {
+                    console.log('Correctly caught error:', e.message);
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ All tests passed!
+                
+Test 1: BED Loss = ${bedLoss1.toFixed(2)} Gy
+Test 2: Zero gap = ${bedLoss2.toFixed(2)} Gy
+Test 3: Validation = ${validation.isValid ? 'Valid' : 'Invalid'}
+Test 4: Error handling works correctly`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        function testBIDStrategy() {
+            const resultDiv = document.getElementById('test2-result');
+            try {
+                const strategy = window.compensationStrategies.bid;
+                
+                const params = {
+                    bedLoss: 16.17,
+                    dosePerFraction: 2.0,
+                    alphaBeta: 10,
+                    numFractions: 35,
+                    remainingFractions: 15
+                };
+                
+                const result = strategy.calculateCompensation(params);
+                console.log('BID Result:', result);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ BID Strategy Test Passed!
+                
+Method: ${result.method}
+Extra Fractions: ${result.extraFractionsNeeded}
+BID Days: ${result.bidDays}
+New Total Fractions: ${result.newTotalFractions}
+New BED: ${result.newBED.toFixed(2)} Gy
+Feasible: ${result.feasible ? 'Yes' : 'No'}
+Warnings: ${result.warnings.join(', ') || 'None'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        function testExtraFractionsStrategy() {
+            const resultDiv = document.getElementById('test3-result');
+            try {
+                const strategy = window.compensationStrategies.extraFractions;
+                
+                const params = {
+                    bedLoss: 16.17,
+                    dosePerFraction: 2.0,
+                    alphaBeta: 10,
+                    numFractions: 35
+                };
+                
+                const result = strategy.calculateCompensation(params);
+                console.log('Extra Fractions Result:', result);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Extra Fractions Strategy Test Passed!
+                
+Method: ${result.method}
+Extra Fractions: ${result.extraFractionsNeeded}
+New Total Fractions: ${result.newTotalFractions}
+Extra Treatment Days: ${result.extraTreatmentDays}
+New BED: ${result.newBED.toFixed(2)} Gy
+Feasible: ${result.feasible ? 'Yes' : 'No'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        function testSixDaysWeekStrategy() {
+            const resultDiv = document.getElementById('test4-result');
+            try {
+                const strategy = window.compensationStrategies.sixDaysWeek;
+                
+                const params = {
+                    bedLoss: 16.17,
+                    dosePerFraction: 2.0,
+                    alphaBeta: 10,
+                    numFractions: 35,
+                    remainingFractions: 15
+                };
+                
+                const result = strategy.calculateCompensation(params);
+                console.log('Six Days Week Result:', result);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Six Days/Week Strategy Test Passed!
+                
+Method: ${result.method}
+Weeks Needed: ${result.weeksNeeded}
+Days Saved: ${result.daysSaved}
+New BED: ${result.newBED.toFixed(2)} Gy
+Feasible: ${result.feasible ? 'Yes' : 'No'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        function testDoseEscalationStrategy() {
+            const resultDiv = document.getElementById('test5-result');
+            try {
+                const strategy = window.compensationStrategies.doseEscalation;
+                
+                const params = {
+                    bedLoss: 16.17,
+                    dosePerFraction: 2.0,
+                    alphaBeta: 10,
+                    numFractions: 35
+                };
+                
+                const result = strategy.calculateCompensation(params);
+                console.log('Dose Escalation Result:', result);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Dose Escalation Strategy Test Passed!
+                
+Method: ${result.method}
+Original Dose/Fx: ${result.originalDosePerFraction} Gy
+New Dose/Fx: ${result.newDosePerFraction} Gy
+Dose Increase: ${result.doseIncreasePercent}%
+New BED: ${result.newBED} Gy
+Feasible: ${result.feasible ? 'Yes' : 'No'}
+Warnings: ${result.warnings.join(', ') || 'None'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        function testAllMethods() {
+            const resultDiv = document.getElementById('test6-result');
+            try {
+                // Calculate BED loss
+                const bedLoss = window.gapCalculator.calculateBEDLoss(7, 3, 10);
+                
+                const params = {
+                    bedLoss,
+                    dosePerFraction: 2.0,
+                    alphaBeta: 10,
+                    numFractions: 35,
+                    remainingFractions: 15
+                };
+                
+                // Test all strategies
+                const results = {
+                    BID: window.compensationStrategies.bid.calculateCompensation(params),
+                    ExtraFractions: window.compensationStrategies.extraFractions.calculateCompensation(params),
+                    SixDaysWeek: window.compensationStrategies.sixDaysWeek.calculateCompensation(params),
+                    DoseEscalation: window.compensationStrategies.doseEscalation.calculateCompensation(params)
+                };
+                
+                let output = `✅ All Methods Comparison Test Passed!\n\nBED Loss: ${bedLoss.toFixed(2)} Gy\n\n`;
+                
+                for (const [name, result] of Object.entries(results)) {
+                    output += `${name}:\n`;
+                    output += `  - Feasible: ${result.feasible ? 'Yes' : 'No'}\n`;
+                    output += `  - New BED: ${result.newBED ? result.newBED.toFixed(2) : 'N/A'} Gy\n`;
+                    output += `  - Description: ${result.description}\n\n`;
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = output;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

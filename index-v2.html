@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EQD2 & BED Calculator v2 - Multi-Constraint</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 EQD2 & BED Calculator v2</h1>
+            <p>Công cụ tính toán liều sinh học trong xạ trị</p>
+            <p class="author">Phát triển bởi <strong>Dr. Q.T. Phạm</strong></p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                📧 <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+            <div style="background: #28a745; color: white; padding: 10px; border-radius: 6px; margin-top: 15px;">
+                <strong>✨ Version 2.1 - Multi-Constraint Edition</strong><br>
+                <small>Tính toán TẤT CẢ constraints cùng lúc!</small>
+            </div>
+        </header>
+
+        <main>
+            <!-- Organ Dose Lookup & Calculator -->
+            <section class="card">
+                <h2>📚 Tra cứu & Tính toán Giới hạn Liều Cơ quan</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Tra cứu giới hạn liều chuẩn, SBRT và tính toán liều mới với phân liều khác
+                </p>
+                
+                <form id="organDoseLookupForm">
+                    <div class="form-group">
+                        <label for="organLookupSelector">Chọn cơ quan:</label>
+                        <select id="organLookupSelector">
+                            <option value="">-- Chọn cơ quan để tra cứu --</option>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Database 38 cơ quan từ RTOG, QUANTEC, AAPM TG-101
+                        </small>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="lookupOrganDose()">
+                        🔍 Tra cứu thông tin
+                    </button>
+                </form>
+
+                <div id="organDoseLookupResults" style="display: none; margin-top: 20px;"></div>
+
+                <!-- Custom Dose Calculator -->
+                <div id="customDoseCalculatorSection" style="display: none; margin-top: 30px;">
+                    <h3 style="color: #667eea;">🧮 Tính liều với phân liều tùy chỉnh</h3>
+                    <p style="color: #666; margin-bottom: 15px;">
+                        Nhập liều/phân liều mới để tính toán cho <strong>TẤT CẢ constraints</strong> của cơ quan
+                    </p>
+                    <div class="form-group">
+                        <label for="customDosePerFraction">Liều/phân liều mới (Gy):</label>
+                        <input type="number" id="customDosePerFraction" step="0.1" min="0.1" placeholder="3.0">
+                        <small>Nhập liều/phân liều khác với chuẩn (2 Gy)</small>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="calculateCustomOrganDose()">
+                        🧮 Tính liều giới hạn mới cho TẤT CẢ constraints
+                    </button>
+                    <div id="customOrganDoseResults" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </section>
+
+            <!-- Instructions -->
+            <section class="card">
+                <h2>📖 Hướng dẫn sử dụng</h2>
+                <ol style="line-height: 1.8;">
+                    <li><strong>Chọn cơ quan</strong> từ dropdown (ví dụ: Rectum, Bladder, Heart)</li>
+                    <li>Click <strong>"Tra cứu thông tin"</strong> để xem tất cả constraints chuẩn</li>
+                    <li>Nhập <strong>liều/phân liều mới</strong> (ví dụ: 3.0 Gy)</li>
+                    <li>Click <strong>"Tính liều giới hạn mới"</strong></li>
+                    <li>Xem kết quả cho <strong>TẤT CẢ constraints</strong> (V15%, V25%, V35%, V50%, etc.)</li>
+                </ol>
+
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 3px solid #2196F3;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #0d47a1;">
+                        <strong>✨ Tính năng mới:</strong><br>
+                        • Tính toán cho <strong>TẤT CẢ constraints</strong> thay vì chỉ một constraint<br>
+                        • Hiển thị kết quả theo bảng chi tiết với từng % volume<br>
+                        • So sánh BED và Safety Margin cho mỗi constraint<br>
+                        • Status riêng (✅/❌) cho từng constraint
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 EQD2 & BED Calculator v2 - Multi-Constraint Edition</p>
+            <p style="margin-top: 10px; font-size: 0.95rem;">
+                Phát triển bởi <strong>Dr. Q.T. Phạm</strong> 👨‍⚕️
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                📧 Liên hệ: <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Organ Dose Lookup Scripts - Using V2 -->
+    <script src="js/organ-dose-database.js?v=2"></script>
+    <script src="js/bed-calculator.js?v=2"></script>
+    <script src="js/validation-engine.js?v=2"></script>
+    <script src="js/organ-dose-ui-v2.js?v=2"></script>
+    
+    <script>
+        // Show alert function
+        function showAlert(message, type = 'info') {
+            const typeMap = {
+                'error': '❌',
+                'warning': '⚠️',
+                'success': '✅',
+                'info': 'ℹ️'
+            };
+            alert(`${typeMap[type]} ${message}`);
+        }
+
+        console.log('✅ EQD2 Calculator v2 loaded - Multi-Constraint Edition');
+        console.log('📝 All scripts loaded with version 2');
+    </script>
+</body>
+</html>

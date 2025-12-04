@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multi-Constraint Calculation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results {
+            margin-top: 30px;
+        }
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        th {
+            background: #e8f5e8;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .info-box {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Multi-Constraint Calculation</h1>
+        <p class="subtitle">Kiểm tra tính năng tính toán giới hạn liều theo nhiều constraints</p>
+
+        <div class="input-group">
+            <label for="organSelect">Chọn cơ quan:</label>
+            <select id="organSelect">
+                <option value="">-- Chọn cơ quan --</option>
+                <option value="rectum">Rectum (Trực tràng)</option>
+                <option value="bladder">Bladder (Bàng quang)</option>
+                <option value="heart">Heart (Tim)</option>
+                <option value="lung">Lung (Phổi)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="customDose">Liều mỗi phân liều mới (Gy):</label>
+            <input type="number" id="customDose" value="3.0" step="0.1" min="0.1">
+        </div>
+
+        <button onclick="testCalculation()">🧮 Tính toán</button>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script src="js/organ-dose-database.js"></script>
+    <script src="js/bed-calculator.js"></script>
+    <script>
+        function testCalculation() {
+            const organId = document.getElementById('organSelect').value;
+            const customDose = parseFloat(document.getElementById('customDose').value);
+            const resultsDiv = document.getElementById('results');
+
+            if (!organId) {
+                resultsDiv.innerHTML = '<div class="alert alert-error">❌ Vui lòng chọn cơ quan</div>';
+                return;
+            }
+
+            if (!customDose || customDose <= 0) {
+                resultsDiv.innerHTML = '<div class="alert alert-error">❌ Vui lòng nhập liều hợp lệ</div>';
+                return;
+            }
+
+            // Get organ
+            const organ = getOrgan(organId);
+            if (!organ) {
+                resultsDiv.innerHTML = '<div class="alert alert-error">❌ Không tìm thấy cơ quan</div>';
+                return;
+            }
+
+            if (!organ.conventional || organ.conventional.length === 0) {
+                resultsDiv.innerHTML = '<div class="alert alert-error">❌ Không có dữ liệu conventional</div>';
+                return;
+            }
+
+            // Calculate for all constraints
+            const alphaBeta = organ.alphaBeta;
+            const results = organ.conventional.map(constraint => {
+                const result = bedCalculator.calculateDoseConversion({
+                    referenceDose: constraint.doseLimit,
+                    referenceFraction: 2.0,
+                    customFraction: customDose,
+                    alphaBeta: alphaBeta
+                });
+                
+                return {
+                    constraint: constraint,
+                    calculation: result
+                };
+            });
+
+            // Display results
+            displayResults(organ, results, customDose);
+        }
+
+        function displayResults(organ, results, customDose) {
+            const resultsDiv = document.getElementById('results');
+            
+            const anyExceeded = results.some(r => !r.calculation.isWithinLimits);
+            const alertClass = anyExceeded ? 'alert-error' : 'alert-success';
+            const statusIcon = anyExceeded ? '❌' : '✅';
+            const statusText = anyExceeded ? 'MỘT SỐ CONSTRAINTS VƯỢT QUÁ GIỚI HẠN!' : 'Tất cả constraints trong giới hạn an toàn';
+
+            let html = `
+                <div class="alert ${alertClass}">
+                    <h3>${statusIcon} ${statusText}</h3>
+                </div>
+
+                <h3>📊 ${organ.nameVi} (${organ.nameEn})</h3>
+                <p><strong>α/β:</strong> ${organ.alphaBeta} Gy | <strong>Endpoint:</strong> ${organ.endpoint}</p>
+                <p><strong>Phác đồ mới:</strong> ${customDose.toFixed(1)} Gy/fx</p>
+
+                <h4>📋 Kết quả theo từng Constraint:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Constraint</th>
+                            <th style="text-align: center;">Phác đồ chuẩn<br>(2 Gy/fx)</th>
+                            <th style="text-align: center;">Phác đồ mới<br>(${customDose.toFixed(1)} Gy/fx)</th>
+                            <th style="text-align: center;">BED So sánh</th>
+                            <th style="text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(item => {
+                const c = item.constraint;
+                const calc = item.calculation;
+                
+                const constraintLabel = formatConstraintLabel(c);
+                const statusEmoji = calc.isWithinLimits ? '✅' : '❌';
+                const rowColor = calc.isWithinLimits ? '#ffffff' : '#ffe0e0';
+                
+                html += `
+                    <tr style="background: ${rowColor};">
+                        <td><strong>${constraintLabel}</strong></td>
+                        <td style="text-align: center;">
+                            <strong>${calc.referenceDose.toFixed(1)} Gy</strong><br>
+                            <small>${calc.referenceFractions} fx</small><br>
+                            <small style="color: #888;">BED: ${calc.referenceBED.toFixed(1)} Gy</small>
+                        </td>
+                        <td style="text-align: center;">
+                            <strong style="color: #f5576c;">${calc.practicalDose.toFixed(1)} Gy</strong><br>
+                            <small>${calc.practicalFractions} fx</small><br>
+                            <small style="color: #888;">BED: ${calc.customBED.toFixed(1)} Gy</small>
+                        </td>
+                        <td style="text-align: center;">
+                            <small>Margin:</small><br>
+                            <strong style="color: ${calc.safetyMargin >= 0 ? '#28a745' : '#dc3545'};">
+                                ${calc.safetyMargin.toFixed(1)}%
+                            </strong>
+                        </td>
+                        <td style="text-align: center; font-size: 1.5rem;">
+                            ${statusEmoji}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Giải thích:</strong><br>
+                    • <strong>BED (Biologically Effective Dose)</strong>: Liều sinh học tương đương<br>
+                    • <strong>Safety Margin</strong>: % chênh lệch BED (dương = an toàn, âm = vượt quá)<br>
+                    • <strong>✅</strong> = BED phác đồ mới ≤ BED chuẩn (an toàn)<br>
+                    • <strong>❌</strong> = BED phác đồ mới > BED chuẩn (vượt quá giới hạn)
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function formatConstraintLabel(constraint) {
+            const typeMap = {
+                'max': 'Dmax',
+                'mean': 'Dmean',
+                'volume_percent': 'V',
+                'volume_cc': 'D',
+                'volume_to_spare': 'Volume to spare'
+            };
+            
+            const typeLabel = typeMap[constraint.type] || constraint.type;
+            
+            if (constraint.volume) {
+                if (constraint.type === 'volume_percent') {
+                    return `${typeLabel}${constraint.volume}${constraint.volumeUnit}`;
+                } else if (constraint.type === 'volume_cc') {
+                    return `${typeLabel}${constraint.volume}${constraint.volumeUnit}`;
+                } else {
+                    return `${typeLabel} ${constraint.volume}${constraint.volumeUnit}`;
+                }
+            }
+            
+            return typeLabel;
+        }
+
+        console.log('Test page loaded');
+    </script>
+</body>
+</html>

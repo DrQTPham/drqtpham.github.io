@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════
+    ⭐ MỞ TRANG NÀY ĐỂ THẤY KẾT QUẢ ĐÚNG!
+═══════════════════════════════════════════════════════════
+
+🎯 TRANG MỚI (Không bị cache):
+
+    http://localhost:8080/index-v2.html
+
+═══════════════════════════════════════════════════════════
+
+✅ TRANG NÀY SẼ HIỂN THỊ ĐÚNG:
+
+    • TẤT CẢ constraints (V15%, V25%, V35%, V50%)
+    • Bảng chi tiết với từng dòng
+    • Đầy đủ: Dose, Fractions, BED, Margin, Status
+
+═══════════════════════════════════════════════════════════
+
+📝 HƯỚNG DẪN:
+
+    1. Mở: http://localhost:8080/index-v2.html
+    
+    2. Chọn: Rectum (Trực tràng)
+    
+    3. Click: "Tra cứu thông tin"
+    
+    4. Nhập: 3.0 Gy
+    
+    5. Click: "Tính liều giới hạn mới"
+    
+    6. Xem kết quả: Phải thấy 4 dòng!
+
+═══════════════════════════════════════════════════════════
+
+🎉 KẾT QUẢ ĐÚNG:
+
+    ┌──────────┬─────────────────┬─────────────────┬─────────┐
+    │ V15%     │ 75.0 Gy / 37 fx │ 60.0 Gy / 20 fx │   ✅   │
+    │ V25%     │ 70.0 Gy / 35 fx │ 56.0 Gy / 19 fx │   ✅   │
+    │ V35%     │ 65.0 Gy / 32 fx │ 52.0 Gy / 17 fx │   ✅   │
+    │ V50%     │ 60.0 Gy / 30 fx │ 48.0 Gy / 16 fx │   ✅   │
+    └──────────┴─────────────────┴─────────────────┴─────────┘
+
+═══════════════════════════════════════════════════════════
+
+💡 TẠI SAO PHẢI DÙNG TRANG MỚI?
+
+    • Trang cũ (index.html) bị cache
+    • Trình duyệt load file JavaScript cũ
+    • Trang mới (index-v2.html) force load file mới
+    • Không bị cache!
+
+═══════════════════════════════════════════════════════════
+
+🔗 LINK CHÍNH:
+
+    http://localhost:8080/index-v2.html
+
+    ← MỞ LINK NÀY!
+
+═══════════════════════════════════════════════════════════

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Simple Test</h1>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>Test Form</h2>
+                
+                <div class="form-group">
+                    <label>Liều giới hạn chuẩn:</label>
+                    <input type="number" id="standardDoseLimit" value="45" step="0.1" />
+                </div>
+
+                <div class="form-group">
+                    <label>α/β:</label>
+                    <input type="number" id="organAlphaBeta" value="2.0" step="0.1" />
+                </div>
+
+                <div class="form-group">
+                    <label>Liều/phân liều mới:</label>
+                    <input type="number" id="newDosePerFraction" value="3.0" step="0.1" />
+                </div>
+
+                <button class="btn btn-primary" id="calcBtn">Tính toán</button>
+
+                <div id="organLimitResults" style="margin-top: 20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        console.log('Simple test page loaded');
+        
+        document.getElementById('calcBtn').addEventListener('click', function() {
+            console.log('Button clicked!');
+            
+            const standardLimit = parseFloat(document.getElementById('standardDoseLimit').value);
+            const organAlphaBeta = parseFloat(document.getElementById('organAlphaBeta').value);
+            const newDosePerFraction = parseFloat(document.getElementById('newDosePerFraction').value);
+            
+            console.log('Values:', { standardLimit, organAlphaBeta, newDosePerFraction });
+            
+            if (!standardLimit || !organAlphaBeta || !newDosePerFraction) {
+                alert('Vui lòng nhập đầy đủ thông tin');
+                return;
+            }
+            
+            // Calculate
+            const dStandard = 2.0;
+            const bedStandard = standardLimit * (1 + dStandard / organAlphaBeta);
+            const dNew = newDosePerFraction;
+            const newTotalDoseLimit = bedStandard / (1 + dNew / organAlphaBeta);
+            const newNumFractions = Math.floor(newTotalDoseLimit / dNew);
+            const actualTotalDose = newNumFractions * dNew;
+            const actualBED = actualTotalDose * (1 + dNew / organAlphaBeta);
+            const safetyMargin = ((bedStandard - actualBED) / bedStandard * 100);
+            
+            console.log('Calculated:', {
+                bedStandard,
+                newTotalDoseLimit,
+                newNumFractions,
+                actualTotalDose,
+                actualBED,
+                safetyMargin
+            });
+            
+            // Display
+            const resultsDiv = document.getElementById('organLimitResults');
+            
+            const html = `
+                <div class="alert alert-success">
+                    <h3>✅ Kết quả</h3>
+                    <p><strong>BED chuẩn:</strong> ${bedStandard.toFixed(2)} Gy</p>
+                    <p><strong>Liều mới:</strong> ${actualTotalDose.toFixed(1)} Gy (${newNumFractions} phân liều)</p>
+                    <p><strong>BED mới:</strong> ${actualBED.toFixed(2)} Gy</p>
+                    <p><strong>Margin:</strong> ${safetyMargin.toFixed(1)}%</p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+            
+            console.log('Results displayed!');
+        });
+    </script>
+</body>
+</html>

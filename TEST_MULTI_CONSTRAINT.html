@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST - Multi-Constraint Display</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .test-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        .test-info h2 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .test-info ul {
+            color: #856404;
+            line-height: 1.8;
+        }
+        .expected-result {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .expected-result h3 {
+            color: #155724;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 TEST - Multi-Constraint Display</h1>
+            <p>Kiểm tra hiển thị TẤT CẢ constraints</p>
+        </header>
+
+        <main>
+            <div class="test-info">
+                <h2>📋 Hướng dẫn Test</h2>
+                <ol>
+                    <li>Chọn cơ quan: <strong>Rectum (Trực tràng)</strong></li>
+                    <li>Click <strong>"Tra cứu thông tin"</strong></li>
+                    <li>Nhập liều mới: <strong>3.0</strong> Gy</li>
+                    <li>Click <strong>"Tính liều giới hạn mới"</strong></li>
+                    <li>Kiểm tra kết quả bên dưới</li>
+                </ol>
+            </div>
+
+            <div class="expected-result">
+                <h3>✅ Kết quả mong đợi:</h3>
+                <p><strong>Phải hiển thị bảng với 4 dòng:</strong></p>
+                <ul>
+                    <li><strong>V15%</strong>: 75.0 Gy (37 fx) → 60.0 Gy (20 fx) | Margin: +4.0% | ✅</li>
+                    <li><strong>V25%</strong>: 70.0 Gy (35 fx) → 56.0 Gy (19 fx) | Margin: +4.0% | ✅</li>
+                    <li><strong>V35%</strong>: 65.0 Gy (32 fx) → 52.0 Gy (17 fx) | Margin: +4.0% | ✅</li>
+                    <li><strong>V50%</strong>: 60.0 Gy (30 fx) → 48.0 Gy (16 fx) | Margin: +4.0% | ✅</li>
+                </ul>
+                <p style="margin-top: 15px; color: #155724;">
+                    <strong>❌ Nếu chỉ thấy 1 dòng:</strong> Cache chưa clear hoặc file chưa load đúng
+                </p>
+            </div>
+
+            <!-- Organ Dose Lookup & Calculator -->
+            <section class="card">
+                <h2>📚 Tra cứu & Tính toán Giới hạn Liều Cơ quan</h2>
+                
+                <form id="organDoseLookupForm">
+                    <div class="form-group">
+                        <label for="organLookupSelector">Chọn cơ quan:</label>
+                        <select id="organLookupSelector">
+                            <option value="">-- Chọn cơ quan để tra cứu --</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="lookupOrganDose()">
+                        🔍 Tra cứu thông tin
+                    </button>
+                </form>
+
+                <div id="organDoseLookupResults" style="display: none; margin-top: 20px;"></div>
+
+                <!-- Custom Dose Calculator -->
+                <div id="customDoseCalculatorSection" style="display: none; margin-top: 30px;">
+                    <h3 style="color: #667eea;">🧮 Tính liều với phân liều tùy chỉnh</h3>
+                    <div class="form-group">
+                        <label for="customDosePerFraction">Liều/phân liều mới (Gy):</label>
+                        <input type="number" id="customDosePerFraction" step="0.1" min="0.1" placeholder="3.0" value="3.0">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="calculateCustomOrganDose()">
+                        🧮 Tính liều giới hạn mới
+                    </button>
+                    <div id="customOrganDoseResults" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </section>
+
+            <!-- Debug Info -->
+            <section class="card">
+                <h2>🔍 Debug Info</h2>
+                <div id="debugInfo" style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 0.9rem;">
+                    <p>Loading debug info...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 EQD2 & BED Calculator - Test Page</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Phát triển bởi <strong>Dr. Q.T. Phạm</strong> 👨‍⚕️<br>
+                📧 Liên hệ: <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="js/organ-dose-database.js"></script>
+    <script src="js/bed-calculator.js"></script>
+    <script src="js/validation-engine.js"></script>
+    <script src="js/organ-dose-ui.js"></script>
+    
+    <script>
+        // Debug info
+        window.addEventListener('load', () => {
+            const debugDiv = document.getElementById('debugInfo');
+            const organCount = typeof getOrganCount === 'function' ? getOrganCount() : 'N/A';
+            const rectum = typeof getOrgan === 'function' ? getOrgan('rectum') : null;
+            const conventionalCount = rectum && rectum.conventional ? rectum.conventional.length : 0;
+            
+            debugDiv.innerHTML = `
+                <p><strong>✅ Scripts Loaded:</strong></p>
+                <p>• organ-dose-database.js: ${typeof ORGAN_DATABASE !== 'undefined' ? '✅' : '❌'}</p>
+                <p>• bed-calculator.js: ${typeof bedCalculator !== 'undefined' ? '✅' : '❌'}</p>
+                <p>• validation-engine.js: ${typeof validationEngine !== 'undefined' ? '✅' : '❌'}</p>
+                <p>• organ-dose-ui.js: ${typeof initializeOrganSelector === 'function' ? '✅' : '❌'}</p>
+                <p style="margin-top: 15px;"><strong>📊 Data Check:</strong></p>
+                <p>• Total organs: ${organCount}</p>
+                <p>• Rectum conventional constraints: ${conventionalCount}</p>
+                <p style="margin-top: 15px;"><strong>🔧 Functions Check:</strong></p>
+                <p>• formatConstraintLabel: ${typeof formatConstraintLabel === 'function' ? '✅' : '❌'}</p>
+                <p>• calculateCustomOrganDose: ${typeof calculateCustomOrganDose === 'function' ? '✅' : '❌'}</p>
+                <p>• displayCustomDoseResults: ${typeof displayCustomDoseResults === 'function' ? '✅' : '❌'}</p>
+            `;
+        });
+
+        // Auto-select rectum for quick test
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const selector = document.getElementById('organLookupSelector');
+                if (selector && selector.options.length > 1) {
+                    // Find rectum option
+                    for (let i = 0; i < selector.options.length; i++) {
+                        if (selector.options[i].value === 'rectum') {
+                            selector.value = 'rectum';
+                            console.log('✅ Auto-selected Rectum');
+                            break;
+                        }
+                    }
+                }
+            }, 500);
+        });
+
+        // Show alert function
+        function showAlert(message, type = 'info') {
+            const typeMap = {
+                'error': '❌',
+                'warning': '⚠️',
+                'success': '✅',
+                'info': 'ℹ️'
+            };
+            alert(`${typeMap[type]} ${message}`);
+        }
+
+        console.log('🧪 Test page loaded');
+        console.log('📝 Instructions:');
+        console.log('1. Select Rectum');
+        console.log('2. Click "Tra cứu thông tin"');
+        console.log('3. Enter 3.0 Gy');
+        console.log('4. Click "Tính liều giới hạn mới"');
+        console.log('5. Check if you see 4 rows (V15%, V25%, V35%, V50%)');
+    </script>
+</body>
+</html>

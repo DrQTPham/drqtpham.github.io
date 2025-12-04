@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Custom Dose - Simple</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Test Custom Dose Calculation</h1>
+    
+    <div>
+        <h3>Step 1: Select Organ</h3>
+        <select id="organLookupSelector">
+            <option value="">-- Select --</option>
+            <option value="spinal_cord">Spinal Cord</option>
+            <option value="brainstem">Brainstem</option>
+            <option value="lens">Lens</option>
+        </select>
+        <button onclick="lookupOrganDose()">Lookup Organ</button>
+    </div>
+
+    <div id="organDoseLookupResults" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+        <p>Organ info will appear here...</p>
+    </div>
+
+    <div id="customDoseCalculatorSection" style="display: none; margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+        <h3>Step 2: Calculate Custom Dose</h3>
+        <label>Custom Dose/Fraction (Gy):</label>
+        <input type="number" id="customDosePerFraction" value="3.0" step="0.1" min="0.1">
+        <button onclick="calculateCustomOrganDose()">Calculate</button>
+    </div>
+
+    <div id="customOrganDoseResults" style="display: none; margin-top: 20px;"></div>
+
+    <!-- Load scripts -->
+    <script src="js/organ-dose-database.js"></script>
+    <script src="js/bed-calculator.js"></script>
+    <script src="js/validation-engine.js"></script>
+    <script src="js/organ-dose-ui.js"></script>
+
+    <script>
+        console.log('✅ Page loaded');
+        console.log('organDoseDatabase:', typeof organDoseDatabase);
+        console.log('bedCalculator:', typeof bedCalculator);
+        console.log('validationEngine:', typeof validationEngine);
+        console.log('lookupOrganDose:', typeof lookupOrganDose);
+        console.log('calculateCustomOrganDose:', typeof calculateCustomOrganDose);
+    </script>
+</body>
+</html>

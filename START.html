@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 EQD2 & BED Calculator - Start Here</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .version {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+        .main-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            margin: 20px 0;
+        }
+        .main-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        .features {
+            margin-top: 50px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+        }
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+        .feature-text {
+            flex: 1;
+        }
+        .feature-text h3 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .feature-text p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .new-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+        .footer strong {
+            color: #667eea;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 EQD2 & BED Calculator</h1>
+        <p class="subtitle">Công cụ tính toán liều sinh học trong xạ trị</p>
+        <span class="version">✨ Version 2.1 - Multi-Constraint Edition</span>
+
+        <div style="margin: 40px 0;">
+            <a href="index.html" class="main-button">
+                🚀 BẮT ĐẦU SỬ DỤNG
+            </a>
+        </div>
+
+        <div class="features">
+            <h2>🎯 Tính Năng Chính</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🧮</div>
+                    <div class="feature-text">
+                        <h3>Tính BED & EQD2</h3>
+                        <p>Tính toán liều sinh học tương đương</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-text">
+                        <h3>Tính ngược</h3>
+                        <p>Từ EQD2 mục tiêu ra số phân liều</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">⏸️</div>
+                    <div class="feature-text">
+                        <h3>Bù liều Gap</h3>
+                        <p>Tính bù khi gián đoạn xạ trị</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">📚</div>
+                    <div class="feature-text">
+                        <h3>Tra cứu Organ Dose <span class="new-badge">NEW</span></h3>
+                        <p>38 cơ quan với SBRT 3fx/5fx</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">
+                        <h3>Multi-Constraint <span class="new-badge">NEW</span></h3>
+                        <p>Tính TẤT CẢ constraints cùng lúc</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <h3>Lịch sử</h3>
+                        <p>Lưu và xuất kết quả tính toán</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-bottom: 10px;">✨ Tính năng mới nhất</h3>
+            <p style="color: #856404; line-height: 1.6;">
+                <strong>Multi-Constraint Calculation:</strong> Khi tính giới hạn liều cơ quan với phân liều mới, 
+                hệ thống sẽ tính toán và hiển thị kết quả cho <strong>TẤT CẢ constraints</strong> 
+                (V15%, V25%, V35%, V50%, etc.) thay vì chỉ một constraint duy nhất.
+            </p>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e7f3ff; border-radius: 10px; border-left: 4px solid #2196F3;">
+            <h3 style="color: #0d47a1; margin-bottom: 10px;">📖 Hướng dẫn nhanh</h3>
+            <ol style="color: #0d47a1; text-align: left; line-height: 1.8; padding-left: 20px;">
+                <li>Click nút <strong>"BẮT ĐẦU SỬ DỤNG"</strong> ở trên</li>
+                <li>Chọn tính năng bạn cần (BED/EQD2, Gap, Organ Dose)</li>
+                <li>Nhập thông số và click <strong>"Tính toán"</strong></li>
+                <li>Xem kết quả chi tiết với bảng và biểu đồ</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 EQD2 & BED Calculator</p>
+            <p style="margin-top: 10px;">
+                Phát triển bởi <strong>Dr. Q.T. Phạm</strong> 👨‍⚕️
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                📧 Liên hệ: <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9rem;">
+                📚 Database: RTOG, QUANTEC, AAPM TG-101<br>
+                🔬 38 cơ quan | 4 fractionation schemes | 100+ constraints
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect after 3 seconds if user doesn't click
+        let countdown = 10;
+        const button = document.querySelector('.main-button');
+        const originalText = button.textContent;
+        
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                button.textContent = `🚀 BẮT ĐẦU SỬ DỤNG (${countdown}s)`;
+            } else {
+                clearInterval(timer);
+                window.location.href = 'index.html';
+            }
+        }, 1000);
+
+        // Clear timer if user clicks
+        button.addEventListener('click', () => {
+            clearInterval(timer);
+        });
+    </script>
+</body>
+</html>

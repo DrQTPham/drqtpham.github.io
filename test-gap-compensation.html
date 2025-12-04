@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gap Compensation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Test Tính bù liều gián đoạn</h1>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>⏸️ Tính bù liều khi gián đoạn xạ trị</h2>
+                
+                <form id="gapCompensationForm">
+                    <div class="form-group">
+                        <label for="tumorType">Loại u:</label>
+                        <select id="tumorType">
+                            <option value="">-- Chọn loại u --</option>
+                            <option value="head_neck">U đầu cổ (Head & Neck)</option>
+                            <option value="lung">U phổi (Lung)</option>
+                            <option value="breast">U vú (Breast)</option>
+                            <option value="prostate">U tuyến tiền liệt (Prostate)</option>
+                            <option value="cervix">U cổ tử cung (Cervix)</option>
+                            <option value="rectum">U trực tràng (Rectum)</option>
+                            <option value="custom">Tùy chỉnh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repopulationRate">Tốc độ tái sinh (Gy/ngày):</label>
+                        <input type="number" id="repopulationRate" step="0.1" min="0" value="0.6" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gapDays">Số ngày gián đoạn:</label>
+                        <input type="number" id="gapDays" min="1" value="7" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalTotalDose">Tổng liều ban đầu (Gy):</label>
+                        <input type="number" id="originalTotalDose" step="0.1" min="0" value="70.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalFractions">Số phân liều ban đầu:</label>
+                        <input type="number" id="originalFractions" min="1" value="35" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="completedFractions">Số phân liều đã hoàn thành:</label>
+                        <input type="number" id="completedFractions" min="0" value="20" required>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="calculateGapCompensation()">
+                        🧮 Tính liều bù
+                    </button>
+                </form>
+
+                <div id="gapCompensationResults" style="display: none; margin-top: 20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js?v=3"></script>
+    <script>
+        console.log('Test gap compensation page loaded');
+        console.log('calculateGapCompensation exists:', typeof calculateGapCompensation !== 'undefined');
+    </script>
+</body>
+</html>

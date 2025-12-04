@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EQD2 & BED Calculator - Tính toán Xạ trị</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 EQD2 & BED Calculator</h1>
+            <p>Công cụ tính toán liều sinh học trong xạ trị</p>
+            <p class="author">Phát triển bởi <strong>Dr. Q.T. Phạm</strong></p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                📧 <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+        </header>
+
+        <main>
+            <!-- Calculation Form -->
+            <section class="card">
+                <h2>Tính toán BED & EQD2</h2>
+                
+                <form id="calculationForm">
+                    <div class="form-group">
+                        <label for="totalDose">Tổng liều (D) - Gy:</label>
+                        <input type="number" id="totalDose" step="0.1" min="0" placeholder="60.0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numFractions">Số phân liều (n):</label>
+                        <input type="number" id="numFractions" min="1" placeholder="30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dosePerFraction">Liều/phân liều (d) - Gy:</label>
+                        <input type="number" id="dosePerFraction" step="0.1" min="0" placeholder="2.0">
+                        <small>Để trống nếu đã nhập tổng liều</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alphaBetaPreset">Chọn α/β preset:</label>
+                        <select id="alphaBetaPreset">
+                            <option value="">-- Chọn loại mô / u --</option>
+                            <optgroup label="🎯 TUMOR (U)">
+                                <option value="1.5">U tuyến tiền liệt (Prostate) - 1.5 Gy</option>
+                                <option value="3.5">U vú (Breast) - 3.5 Gy (3-4)</option>
+                                <option value="10">U đầu cổ (Head & Neck) - 10 Gy</option>
+                                <option value="12">U phổi NSCLC - 12 Gy (10-15)</option>
+                            </optgroup>
+                            <optgroup label="🧠 HỆ THẦN KINH (Late Effects)">
+                                <option value="2">Tủy sống (Spinal Cord) - 2 Gy</option>
+                                <option value="2.5">Não (Brain Necrosis) - 2.5 Gy (2-3)</option>
+                                <option value="2.5">Dây TK thị giác (Optic Nerve) - 2.5 Gy (2-3)</option>
+                                <option value="1">Thủy tinh thể (Lens) - 1 Gy (0.7-1)</option>
+                            </optgroup>
+                            <optgroup label="❤️ TIM PHỔI THẬN GAN">
+                                <option value="3">Tim (Heart) - 3 Gy (1-3)</option>
+                                <option value="3">Phổi (Lung) - 3 Gy (2-4)</option>
+                                <option value="2.5">Thận (Kidney) - 2.5 Gy (2-3)</option>
+                                <option value="2.5">Gan (Liver) - 2.5 Gy (2-3)</option>
+                            </optgroup>
+                            <optgroup label="🔻 TIỂU KHUNG">
+                                <option value="3">Trực tràng (Rectum) - 3 Gy</option>
+                                <option value="3">Bàng quang (Bladder) - 3 Gy</option>
+                            </optgroup>
+                            <optgroup label="🩹 DA XƯƠNG TỦY">
+                                <option value="10">Da (Skin Acute) - 10 Gy</option>
+                                <option value="3">Da (Skin Late) - 3 Gy</option>
+                                <option value="3">Xương (Bone) - 3 Gy</option>
+                                <option value="10">Tủy xương (Bone Marrow) - 10 Gy</option>
+                            </optgroup>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Giá trị dựa trên QUANTEC, PENTEC và các nghiên cứu lâm sàng
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alphaBeta">Hoặc nhập α/β tùy chỉnh - Gy:</label>
+                        <input type="number" id="alphaBeta" step="0.1" min="0.1" placeholder="10.0" required>
+                        <small style="color: #888;">Nhập giá trị tùy chỉnh nếu không có trong danh sách</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="calculateBoth()">
+                            Tính cả BED & EQD2
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="calculateBED()">
+                            Chỉ tính BED
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="calculateEQD2()">
+                            Chỉ tính EQD2
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Results Display -->
+            <section class="card" id="resultsSection" style="display: none;">
+                <h2>Kết quả</h2>
+                <div id="results" class="results-grid"></div>
+            </section>
+
+            <!-- Reverse Calculation -->
+            <section class="card">
+                <h2>Tính ngược từ EQD2 mục tiêu</h2>
+                
+                <form id="reverseForm">
+                    <div class="form-group">
+                        <label for="targetEQD2">EQD2 mục tiêu - Gy:</label>
+                        <input type="number" id="targetEQD2" step="0.1" min="0" placeholder="60.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reverseDosePerFraction">Liều/phân liều (d) - Gy:</label>
+                        <input type="number" id="reverseDosePerFraction" step="0.1" min="0" placeholder="2.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reverseAlphaBetaPreset">Chọn α/β preset:</label>
+                        <select id="reverseAlphaBetaPreset">
+                            <option value="">-- Chọn loại mô / u --</option>
+                            <optgroup label="🎯 TUMOR (U)">
+                                <option value="1.5">U tuyến tiền liệt (Prostate) - 1.5 Gy</option>
+                                <option value="3.5">U vú (Breast) - 3.5 Gy (3-4)</option>
+                                <option value="10">U đầu cổ (Head & Neck) - 10 Gy</option>
+                                <option value="12">U phổi NSCLC - 12 Gy (10-15)</option>
+                            </optgroup>
+                            <optgroup label="🧠 HỆ THẦN KINH (Late Effects)">
+                                <option value="2">Tủy sống (Spinal Cord) - 2 Gy</option>
+                                <option value="2.5">Não (Brain Necrosis) - 2.5 Gy (2-3)</option>
+                                <option value="2.5">Dây TK thị giác (Optic Nerve) - 2.5 Gy (2-3)</option>
+                                <option value="1">Thủy tinh thể (Lens) - 1 Gy (0.7-1)</option>
+                            </optgroup>
+                            <optgroup label="❤️ TIM PHỔI THẬN GAN">
+                                <option value="3">Tim (Heart) - 3 Gy (1-3)</option>
+                                <option value="3">Phổi (Lung) - 3 Gy (2-4)</option>
+                                <option value="2.5">Thận (Kidney) - 2.5 Gy (2-3)</option>
+                                <option value="2.5">Gan (Liver) - 2.5 Gy (2-3)</option>
+                            </optgroup>
+                            <optgroup label="🔻 TIỂU KHUNG">
+                                <option value="3">Trực tràng (Rectum) - 3 Gy</option>
+                                <option value="3">Bàng quang (Bladder) - 3 Gy</option>
+                            </optgroup>
+                            <optgroup label="🩹 DA XƯƠNG TỦY">
+                                <option value="10">Da (Skin Acute) - 10 Gy</option>
+                                <option value="3">Da (Skin Late) - 3 Gy</option>
+                                <option value="3">Xương (Bone) - 3 Gy</option>
+                                <option value="10">Tủy xương (Bone Marrow) - 10 Gy</option>
+                            </optgroup>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Giá trị dựa trên QUANTEC, PENTEC và các nghiên cứu lâm sàng
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reverseAlphaBeta">Hoặc nhập α/β tùy chỉnh - Gy:</label>
+                        <input type="number" id="reverseAlphaBeta" step="0.1" min="0.1" placeholder="10.0" required>
+                        <small style="color: #888;">Nhập giá trị tùy chỉnh nếu không có trong danh sách</small>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="calculateReverse()">
+                        Tính số phân liều cần thiết
+                    </button>
+                </form>
+
+                <div id="reverseResults" style="display: none; margin-top: 20px;"></div>
+            </section>
+
+            <!-- Treatment Gap Compensation Calculator -->
+            <section class="card">
+                <h2>⏸️ Tính bù liều khi gián đoạn xạ trị</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Tính toán liều bù khi có gián đoạn trong quá trình xạ trị (do tái sinh tế bào u)
+                </p>
+                
+                <form id="gapCompensationForm">
+                    <div class="form-group">
+                        <label for="tumorType">Loại u:</label>
+                        <select id="tumorType">
+                            <option value="">-- Chọn loại u --</option>
+                            <optgroup label="🎯 U biểu mô (nhanh)">
+                                <option value="hnscc">U đầu cổ (HNSCC) - 0.7 Gy/day</option>
+                                <option value="nsclc">U phổi NSCLC - 0.6 Gy/day</option>
+                                <option value="sclc">U phổi SCLC - 0.75 Gy/day</option>
+                                <option value="esophagus">U thực quản - 0.6 Gy/day</option>
+                                <option value="cervix">U cổ tử cung - 0.6 Gy/day</option>
+                                <option value="bladder">U bàng quang - 0.6 Gy/day</option>
+                                <option value="rectum">U trực tràng - 0.6 Gy/day</option>
+                            </optgroup>
+                            <optgroup label="🧠 U não">
+                                <option value="gbm">GBM (Glioblastoma) - 0.5 Gy/day</option>
+                            </optgroup>
+                            <optgroup label="🩸 U lympho">
+                                <option value="lymphoma">Lymphoma - 1.0 Gy/day (rất nhanh)</option>
+                            </optgroup>
+                            <optgroup label="🐌 U chậm">
+                                <option value="breast">U vú (Breast) - 0.15 Gy/day</option>
+                                <option value="prostate">U tuyến tiền liệt - ≈0 Gy/day</option>
+                            </optgroup>
+                            <optgroup label="⚙️ Tùy chỉnh">
+                                <option value="custom">Nhập thủ công</option>
+                            </optgroup>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Dựa trên QUANTEC, PENTEC và các nghiên cứu lâm sàng
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repopulationRate">Tốc độ tái sinh (Gy/ngày):</label>
+                        <input type="number" id="repopulationRate" step="0.1" min="0" placeholder="0.6" required>
+                        <small>Thông thường: U đầu cổ 0.6-0.7, U phổi 0.5, U khác 0.3-0.5 Gy/ngày</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gapDays">Số ngày gián đoạn:</label>
+                        <input type="number" id="gapDays" min="1" placeholder="7" required>
+                        <small>Số ngày không xạ trị (không tính cuối tuần thông thường)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalTotalDose">Tổng liều ban đầu (Gy):</label>
+                        <input type="number" id="originalTotalDose" step="0.1" min="0" placeholder="70.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="originalFractions">Số phân liều ban đầu:</label>
+                        <input type="number" id="originalFractions" min="1" placeholder="35" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="completedFractions">Số phân liều đã hoàn thành:</label>
+                        <input type="number" id="completedFractions" min="0" placeholder="20" required>
+                        <small>Số phân liều đã xạ trước khi gián đoạn</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gapAlphaBeta">α/β của u (Gy):</label>
+                        <input type="number" id="gapAlphaBeta" step="0.1" min="0.1" placeholder="10.0" value="10.0">
+                        <small>Giá trị α/β cho tính toán BED (mặc định: 10 Gy cho u)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="compensationMethod">Phương pháp bù liều:</label>
+                        <select id="compensationMethod">
+                            <option value="simple">Đơn giản (2 phương án cơ bản)</option>
+                            <option value="all">Đầy đủ (6 phương pháp khoa học)</option>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Chế độ "Đầy đủ" bao gồm: BID, Extra fractions, 6 days/week, Increase dose, Hybrid
+                        </small>
+                    </div>
+
+                    <!-- Advanced parameters (hidden by default) -->
+                    <div id="advancedGapParams" style="display: none;">
+                        <h4 style="color: #667eea; margin-top: 20px;">⚙️ Thông số nâng cao (tùy chọn)</h4>
+                        
+                        <div class="form-group">
+                            <label for="ottMax">OTT tối đa cho phép (ngày):</label>
+                            <input type="number" id="ottMax" min="1" placeholder="56" value="56">
+                            <small>Overall Treatment Time tối đa (mặc định: 56 ngày cho u đầu cổ)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ottCompleted">OTT đã hoàn thành (ngày):</label>
+                            <input type="number" id="ottCompleted" min="0" placeholder="28">
+                            <small>Số ngày điều trị đã thực hiện (tính cả cuối tuần)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tumorDoublingTime">Tumor Doubling Time (Td) - ngày:</label>
+                        <input type="number" id="tumorDoublingTime" step="0.1" min="0.1" placeholder="3.0" value="3.0">
+                        <small>Thời gian tăng gấp đôi thể tích khối u (mặc định: 3 ngày cho u nhanh)</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="window.gapCompensationUI.calculateAllMethods()">
+                            🧮 Tính toán tất cả phương pháp
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="calculateGapCompensation()">
+                            📊 Phương pháp đơn giản (cũ)
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleAdvancedGapParams()">
+                            ⚙️ Thông số nâng cao
+                        </button>
+                    </div>
+                </form>
+
+                <div id="gapCompensationResults" style="display: none; margin-top: 20px;"></div>
+            </section>
+
+            <!-- Organ Dose Limit Lookup & Calculator -->
+            <section class="card">
+                <h2>📚 Tra cứu & Tính toán Giới hạn Liều Cơ quan</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Tra cứu giới hạn liều chuẩn, SBRT và tính toán liều mới với phân liều khác
+                </p>
+                
+                <form id="organDoseLookupForm">
+                    <div class="form-group">
+                        <label for="organLookupSelector">Chọn cơ quan:</label>
+                        <select id="organLookupSelector">
+                            <option value="">-- Chọn cơ quan để tra cứu --</option>
+                        </select>
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                            💡 Database 30+ cơ quan từ RTOG, QUANTEC, AAPM TG-101
+                        </small>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="lookupOrganDose()">
+                        🔍 Tra cứu thông tin
+                    </button>
+                </form>
+
+                <div id="organDoseLookupResults" style="display: none; margin-top: 20px;"></div>
+
+                <!-- Custom Dose Calculator -->
+                <div id="customDoseCalculatorSection" style="display: none; margin-top: 30px;">
+                    <h3 style="color: #667eea;">🧮 Tính liều với phân liều tùy chỉnh</h3>
+                    <div class="form-group">
+                        <label for="customDosePerFraction">Liều/phân liều mới (Gy):</label>
+                        <input type="number" id="customDosePerFraction" step="0.1" min="0.1" placeholder="3.0">
+                        <small>Nhập liều/phân liều khác với chuẩn (2 Gy)</small>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="calculateCustomOrganDose()">
+                        🧮 Tính liều giới hạn mới
+                    </button>
+                    <div id="customOrganDoseResults" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </section>
+
+            <!-- History -->
+            <section class="card">
+                <h2>Lịch sử tính toán</h2>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="loadHistory()">
+                        🔄 Tải lịch sử
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportHistory()">
+                        📥 Xuất file
+                    </button>
+                </div>
+                <div id="historyList" style="margin-top: 20px;"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 EQD2 & BED Calculator | Công cụ hỗ trợ xạ trị</p>
+            <p style="margin-top: 10px; font-size: 0.95rem;">
+                Phát triển bởi <strong>Dr. Q.T. Phạm</strong> 👨‍⚕️
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                📧 Liên hệ: <a href="mailto:qtphamhus@gmail.com" style="color: white; text-decoration: none;">qtphamhus@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Input Normalizer - Hỗ trợ dấu phẩy và dấu chấm -->
+    <script src="js/input-normalizer.js"></script>
+    
+    <!-- Organ Dose Lookup Scripts -->
+    <script src="js/organ-dose-database.js"></script>
+    <script src="js/bed-calculator.js"></script>
+    <script src="js/validation-engine.js"></script>
+    <script src="js/organ-dose-ui.js"></script>
+    
+    <!-- Gap Compensation Modules (New Architecture) -->
+    <script src="js/gap-compensation-core.js"></script>
+    <script src="js/gap-compensation-strategies.js"></script>
+    <script src="js/gap-compensation-ui.js"></script>
+    
+    <!-- Advanced Gap Compensation Calculator (Legacy) -->
+    <script src="js/gap-compensation-advanced.js"></script>
+    
+    <script src="js/app.js?v=4"></script>
+</body>
+</html>
